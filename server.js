@@ -38,6 +38,35 @@ app.post('/api/exercise/new-user', (req, res) => {
     }
 });
 
+
+app.post('/api/exercise/add', (req, res) => {
+    let exeDate = new Date();
+
+    if (!req.body.userId) {
+        res.json({ "response": false, "message": "userId is mandatory" });
+    }
+
+    if (req.body.date) {
+        exeDate = new Date(req.body.date);
+    }
+
+    let exerciseData = {
+        description: req.body.description,
+        duration: req.body.duration,
+        date: exeDate
+    }
+
+    personExercise.addExercise(req.body.userId, exerciseData, (err, data) => {
+        if (err) {
+            res.json({ "response": false, "message": "some error while adding" })
+        } else if (data == "notfound") {
+            res.json({ "response": false, "message": "user does not exist" });
+        } else {
+            res.send({ username: data.username, exercise: exerciseData })
+        }
+    });
+})
+
 // Not found middleware
 app.use((req, res, next) => {
     return next({ status: 404, message: 'not found' })

@@ -32,3 +32,22 @@ exports.createUser = (name, done) => {
         }
     })
 }
+
+exports.addExercise = (userId, exerciseData, done) => {
+
+    personExercise.findOne({ shortId: userId }, (err, data) => {
+        if (data == null) {
+            return done(err, 'notfound');
+        } else {
+            data.exercise = data.exercise.concat(exerciseData);
+        }
+
+        data.save((err, data) => {
+            if (err) {
+                return done(err, null)
+            } else {
+                return done(null, data)
+            }
+        })
+    })
+}
