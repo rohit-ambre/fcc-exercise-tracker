@@ -30,9 +30,9 @@ app.post('/api/exercise/new-user', (req, res) => {
                 res.json({ "response": false, "message": "try again later" });
             }
             if (data == "taken") {
-                res.json({ "response": false, "message": "username already exist" });
+                res.json({ response: false, message: "username already exist" });
             } else {
-                res.json({ "response": true, "username": data.username, "id": data.shortId })
+                res.json({ response: true, username: data.username, id: data.shortId })
             }
         })
     }
@@ -40,14 +40,14 @@ app.post('/api/exercise/new-user', (req, res) => {
 
 
 app.post('/api/exercise/add', (req, res) => {
-    let exeDate = new Date();
+    let exeDate = Date.parse(new Date);
 
     if (!req.body.userId) {
         res.json({ "response": false, "message": "userId is mandatory" });
     }
 
     if (req.body.date) {
-        exeDate = new Date(req.body.date);
+        exeDate = Date.parse(req.body.date);
     }
 
     let exerciseData = {
@@ -58,14 +58,45 @@ app.post('/api/exercise/add', (req, res) => {
 
     personExercise.addExercise(req.body.userId, exerciseData, (err, data) => {
         if (err) {
-            res.json({ "response": false, "message": "some error while adding" })
+            res.json({ response: false, message: "some error while adding" })
         } else if (data == "notfound") {
-            res.json({ "response": false, "message": "user does not exist" });
+            res.json({ response: false, message: "user does not exist" });
         } else {
             res.send({ username: data.username, exercise: exerciseData })
         }
     });
 })
+
+isValidDate = d => {
+    return new Date(d);
+}
+
+
+app.get('/api/exercise/log/', (req, res) => {
+    if (!req.query.userId) {
+        res.json({ "response": false, "message": "userId is mandatory" })
+    }
+    let from, to, limit;
+    const { userId } = req.query;
+    if (req.query.from && isValidDate(req.query.from) != null) {
+        from = req.query.from;
+    }
+    if (req.query.to && isValidDate(req.query.to) != null) {
+        to = req.query.to;
+    }
+    if (req.query.limit) {
+        limit = req.query.limit;
+    }
+    personExercise.getLog(userId, from, to, limit, (err, data) => {
+        if (err) {
+            res.json({ response: false, message: "there's error" });
+        } else if (data === "notfound") {
+            res.json({ response: false, message: "user does not exist" })
+        } else {
+            res.json({ data })
+        }
+    });
+});
 
 // Not found middleware
 app.use((req, res, next) => {

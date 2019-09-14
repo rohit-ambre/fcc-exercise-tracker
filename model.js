@@ -51,3 +51,22 @@ exports.addExercise = (userId, exerciseData, done) => {
         })
     })
 }
+
+exports.getLog = (userId, from, to, limit, done) => {
+    personExercise.findOne({ shortId: userId }, (err, data) => {
+        if (data == null) {
+            return done(err, 'notfound')
+        } else {
+            personExercise.find({
+                shortId: userId,
+                exercise: {
+                    from: {
+                        $lt: new Date(from)
+                    }
+                }
+            }).select('username').exec((err, data) => {
+                return done(null, data)
+            })
+        }
+    })
+}
