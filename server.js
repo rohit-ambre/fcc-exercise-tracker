@@ -53,7 +53,8 @@ app.post('/api/exercise/add', (req, res) => {
     let exerciseData = {
         description: req.body.description,
         duration: req.body.duration,
-        date: exeDate
+        date: exeDate,
+        created_at: new Date()
     }
 
     personExercise.addExercise(req.body.userId, exerciseData, (err, data) => {
@@ -76,13 +77,13 @@ app.get('/api/exercise/log/', (req, res) => {
     if (!req.query.userId) {
         res.json({ "response": false, "message": "userId is mandatory" })
     }
-    let from, to, limit;
+    let from, to, limit = null;
     const { userId } = req.query;
     if (req.query.from && isValidDate(req.query.from) != null) {
-        from = req.query.from;
+        from = Date.parse(req.query.from);
     }
     if (req.query.to && isValidDate(req.query.to) != null) {
-        to = req.query.to;
+        to = Date.parse(req.query.to);
     }
     if (req.query.limit) {
         limit = req.query.limit;

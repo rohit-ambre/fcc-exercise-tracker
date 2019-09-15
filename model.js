@@ -10,7 +10,8 @@ const personExerciseSchema = new Schema({
     exercise: [{
         description: String,
         duration: Number,
-        date: {}
+        date: {},
+        created_at: Date
     }]
 });
 
@@ -57,16 +58,17 @@ exports.getLog = (userId, from, to, limit, done) => {
         if (data == null) {
             return done(err, 'notfound')
         } else {
-            personExercise.find({
-                shortId: userId,
-                exercise: {
-                    from: {
-                        $lt: new Date(from)
-                    }
-                }
-            }).select('username').exec((err, data) => {
-                return done(null, data)
-            })
+            let exerciseData = data.exercise;
+            if (from) {
+                exerciseData = exerciseData.filter(da => (da.date >= from))
+            }
+            if (to) {
+                exerciseData = exerciseData.filter(da => (da.date <= to))
+            }
+            if (limit) {
+                exerciseData = exerciseData.slice(0, limit)
+            }
+            return done(null, exerciseData)
         }
     })
 }
